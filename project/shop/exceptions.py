@@ -1,0 +1,4 @@
+
+
+class StockCountException(ValueError):
+    pass
