@@ -58,9 +58,13 @@ class RetrievePublisherSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_shops(obj):
+        #  shops which selling now or already sold at least one book of that publisher
         shops = Shop.objects.filter(
-            books__publisher=obj.pk,
-            stock__sale__count__gt=0
+            stock__in=Stock.objects.filter(
+                Q(book__publisher=obj.pk) & (
+                    Q(count__gt=0) | Q(sale__count__gt=0)
+                )
+            )
         ).annotate(
             sale_count=Sum(F('stock__sale__count'))
         ).order_by('-sale_count')
