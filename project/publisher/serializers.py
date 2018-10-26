@@ -1,8 +1,8 @@
-from django.db.models import Sum, F
+from django.db.models import Sum, F, Q
 from django.db.models.functions import Coalesce
 from rest_framework import serializers
 from .models import Publisher, Book
-from shop.models import Shop, Sale
+from shop.models import Shop, Sale, Stock
 
 
 class ListPublisherSerializer(serializers.HyperlinkedModelSerializer):
@@ -33,8 +33,8 @@ class PublisherShopsSerializer(serializers.ModelSerializer):
     def get_books_in_stock(self, obj):
         serializer = BookSerializer(
             obj.books.filter(
-                stock__count__gt=0,
-                stock__book__publisher=self.context.get('publisher_pk')
+                stock__book__publisher=self.context.get('publisher_pk'),
+                stock__count__gt=0
             ),
             many=True,
             read_only=True,
@@ -46,7 +46,9 @@ class PublisherShopsSerializer(serializers.ModelSerializer):
         return Sale.objects.filter(
             stock__book__publisher=self.context.get('publisher_pk'),
             stock__shop=obj.pk
-        ).aggregate(count=Coalesce(Sum('count'), 0)).get('count')
+        ).aggregate(
+            count=Coalesce(Sum('count'), 0)
+        ).get('count')
 
 
 class RetrievePublisherSerializer(serializers.ModelSerializer):
