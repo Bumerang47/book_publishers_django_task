@@ -7,7 +7,7 @@ backend
 
 ### Get start:
 
-`python ./project/manage.py makemigrations`  
+`python ./project/manage.py makemigrations publisher shop`  
 `python ./project/manage.py migrate`  
 `python ./project/manage.py loaddata tests_data`  
   
